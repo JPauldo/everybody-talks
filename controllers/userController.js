@@ -41,7 +41,7 @@ const putUserById = async (req, res) => {
       { runValidators: true }
     );
 
-    if (req.body.username) {
+    if (req.body.username && user) {
       await Thought.findOneAndUpdate(
         { username: user.username },
         { username: req.body.username }
@@ -54,7 +54,7 @@ const putUserById = async (req, res) => {
   }
 };
 
-const delUserById = async (req, res) => {
+const deleteUserById = async (req, res) => {
   try {
     const user = await User.findOneAndDelete(
       { _id: req.params.userId },
@@ -76,5 +76,49 @@ const delUserById = async (req, res) => {
   }
 };
 
+const postFriendToList = async (req, res) => {
+  try {
+    const user = await User.findOneAndUpdate(
+      { _id: req.params.userId },
+      { $addToSet: { friends: req.params.friendId } },
+      { new: true, runValidators: true }
+    )
+    
+    const friend = await User.findOneAndUpdate(
+      { _id: req.params.friendId },
+      { $addToSet: { friends: req.params.userId } },
+      { new: true, runValidators: true }
+    );
 
-module.exports = { getAllUsers, getUserById, postUser, putUserById, delUserById };
+    const bond = [user, friend];
+
+    res.status(201).json(bond);
+  } catch (err) {
+    res.status(501).json(err);
+  }
+};
+
+const deleteFriendFromList = async (req, res) => {
+  try {
+    const user = await User.findOneAndUpdate(
+      { _id: req.params.userId },
+      { $pull: { friends: req.params.friendId } },
+      { new: true, runValidators: true }
+    );
+    
+    const friend = await User.findOneAndUpdate(
+      { _id: req.params.friendId },
+      { $pull: { friends: req.params.userId } },
+      { new: true, runValidators: true }
+    );
+
+    const bond = [user, friend];
+    
+    res.status(201).json(bond);
+  } catch (err) {
+    res.status(500).json(err);
+  }
+};
+
+
+module.exports = { getAllUsers, getUserById, postUser, putUserById, deleteUserById, postFriendToList, deleteFriendFromList };

@@ -22,13 +22,7 @@ const userSchema = new Schema(
       type: Types.ObjectId,
       ref: 'user',
       validate: {
-        validator: (id) => {
-          if (id !== this._id || this.friends.includes(id)) {
-            return false;
-          } else {
-            return true;
-          }
-        },
+        validator: id => id !== this._id,
         message: 'You cannot befriend yourself!'
       }
     }]
