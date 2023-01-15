@@ -18,14 +18,20 @@ const userSchema = new Schema(
       type: Types.ObjectId,
       ref: 'thought'
     }],
-    friends: {
+    friends: [{
       type: Types.ObjectId,
       ref: 'user',
       validate: {
-        validator: (id) => id !== this._id,
+        validator: (id) => {
+          if (id !== this._id || this.friends.includes(id)) {
+            return false;
+          } else {
+            return true;
+          }
+        },
         message: 'You cannot befriend yourself!'
       }
-    }
+    }]
   },
   {
     toJSON: {
@@ -34,7 +40,9 @@ const userSchema = new Schema(
   }
 );
 
-userSchema.virtual('friendCount').get(() => this.friends.length);
+userSchema.virtual('friendCount').get(function() {
+  return this.friends.length;
+});
 
 const User = model('user', userSchema);
 
