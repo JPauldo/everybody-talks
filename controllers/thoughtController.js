@@ -23,4 +23,54 @@ const getThoughtById = async (req, res) => {
   }
 }
 
-module.exports = { getAllThoughts, getThoughtById };
+const postThought = async (req, res) => {
+  try {
+    if(await User.exists({ username: req.body.username })) {
+      const thought = await Thought.create(req.body);
+
+      const user = await User.findOneAndUpdate(
+        { username: req.body.username },
+        { $addToSet: { thoughts: thought._id } },
+        { new: true, runValidators: true }
+      )
+  
+      const userThought = [thought, user]
+  
+      res.status(201).json(userThought);
+    }
+    else {
+      res.status(404).json({ message: `Could not find user '${req.body.username}'` });
+    }
+  } catch (err) {
+    res.status(500).json(err);
+  }
+};
+
+const putThoughtById = async (req, res) => {
+  try {
+    if(req.body.username) {
+        res.status(404).json({ message: `Cannot change the username.` });
+    }
+    const thought = await Thought.findOneAndUpdate(
+      { _id: req.params.thoughtId },
+      req.body,
+      { new: true, runValidators: true }
+    );
+
+    res.status(201).json(thought);
+  } catch (err) {
+    res.status(500).json(err);
+  }
+};
+
+const deleteThoughtById = async (req, res) => {
+  try {
+    const thought = await Thought.findByIdAndDelete({ _id: req.params.thoughtId });
+
+    res.status(200).json(thought);
+  } catch (err) {
+    res.status(500).json(err);
+  }
+};
+
+module.exports = { getAllThoughts, getThoughtById, postThought, putThoughtById, deleteThoughtById };
