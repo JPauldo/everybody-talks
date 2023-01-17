@@ -15,7 +15,7 @@ const getAllUsers = async (req, res) => {
 
 const getUserById = async (req, res) => {
   try {
-    const user = await User.findById(req.params.userId).select('-__v').populate('thoughts');
+    const user = await User.findById(req.params.userId).select('-__v').populate('thoughts').populate('friends');
 
     res.status(200).json(user);
   } catch (err) {
@@ -44,7 +44,8 @@ const putUserById = async (req, res) => {
     if (req.body.username && user) {
       await Thought.findOneAndUpdate(
         { username: user.username },
-        { username: req.body.username }
+        { username: req.body.username },
+        { runValidators: true }
       );
     }
 

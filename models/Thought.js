@@ -14,23 +14,24 @@ const thoughtSchema = new Schema(
       type: Date,
       default: Date.now,
       get: (date) => {
-        const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sept", "Oct", "Nov", "Dec"];
+        const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sept', 'Oct', 'Nov', 'Dec'];
         const nth = (d) => {
           if (d > 3 && d < 21) {
-            return 'th';
+            return `${d}th`;
           } else {
             switch (d % 10) {
               case 1:
-                return 'st';
+                return `${d}st`;
               case 2:
-                return 'nd';
+                return `${d}nd`;
               case 3:
-                return 'rd';
+                return `${d}rd`;
               default:
-                return 'th';
+                return `${d}th`;
             }
           }
         }
+        
         const dateNum = date.getDate();
         const month = months[date.getMonth()];
         const year = date.getFullYear();
