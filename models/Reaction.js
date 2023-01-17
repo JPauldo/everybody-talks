@@ -35,7 +35,7 @@ const reactionSchema = new Schema(
                 return `${d}th`;
             }
           }
-        }        
+        };
         const getDay = (month, year) => {
           if (month === 1) {
             if (year % 4 === 0) {

@@ -21,7 +21,7 @@ const getThoughtById = async (req, res) => {
   } catch (err) {
     res.status(500).json(err);
   }
-}
+};
 
 const postThought = async (req, res) => {
   try {
@@ -73,4 +73,37 @@ const deleteThoughtById = async (req, res) => {
   }
 };
 
-module.exports = { getAllThoughts, getThoughtById, postThought, putThoughtById, deleteThoughtById };
+const postReaction = async (req, res) => {
+  try {
+    if (await User.exists({ username: req.body.username })) {
+      const reaction = await Thought.findOneAndUpdate(
+        { _id: req.params.thoughtId },
+        { $addToSet: { reactions: req.body } },
+        { new: true, runValidators: true }
+      );
+
+      res.status(201).json(reaction);
+    }
+    else {
+      res.status(404).json({ message: `Could not find user '${req.body.username}'` });
+    }
+  } catch (err) {
+    res.status(500).json(err);
+  }
+};
+
+const deleteReaction = async (req, res) => {
+  try {
+    const reaction = await Thought.findOneAndUpdate(
+      { _id: req.params.thoughtId },
+      { $pull: { reactions: req.params.reactionId } },
+      { new: true, runValidators: true }
+    );
+
+    res.status(200).json(reaction);
+  } catch (err) {
+    res.status(500).json(err);
+  }
+};
+
+module.exports = { getAllThoughts, getThoughtById, postThought, putThoughtById, deleteThoughtById, postReaction, deleteReaction };
