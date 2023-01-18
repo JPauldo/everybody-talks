@@ -1,9 +1,8 @@
 const { Thought, User } = require('../models');
-const { exists } = require('../models/User');
 
 const getAllThoughts = async (req, res) => {
   try {
-    const thoughts = await Thought.find();
+    const thoughts = await Thought.find().select('-__v');
 
     res.status(200).json(thoughts);
   } catch (err) {
@@ -13,9 +12,7 @@ const getAllThoughts = async (req, res) => {
 
 const getThoughtById = async (req, res) => {
   try {
-    console.log(req.params.thoughtId);
     const thought = await Thought.findById(req.params.thoughtId).select('-__v');
-    console.log(thought);
     
     res.status(200).json(thought);
   } catch (err) {
@@ -32,9 +29,9 @@ const postThought = async (req, res) => {
         { username: req.body.username },
         { $addToSet: { thoughts: thought._id } },
         { new: true, runValidators: true }
-      )
+      ).select('-__v');
   
-      const userThought = [thought, user]
+      const userThought = [thought, user];
   
       res.status(201).json(userThought);
     }
@@ -55,7 +52,7 @@ const putThoughtById = async (req, res) => {
       { _id: req.params.thoughtId },
       req.body,
       { new: true, runValidators: true }
-    );
+    ).select('-__v');
 
     res.status(201).json(thought);
   } catch (err) {
@@ -65,7 +62,11 @@ const putThoughtById = async (req, res) => {
 
 const deleteThoughtById = async (req, res) => {
   try {
-    const thought = await Thought.findByIdAndDelete({ _id: req.params.thoughtId });
+    const thought = await Thought.findByIdAndDelete(
+      {
+        _id: req.params.thoughtId
+      }
+    ).select('-__v');
 
     res.status(200).json(thought);
   } catch (err) {
@@ -80,7 +81,7 @@ const postReaction = async (req, res) => {
         { _id: req.params.thoughtId },
         { $addToSet: { reactions: req.body } },
         { new: true, runValidators: true }
-      );
+      ).select('-__v');
 
       res.status(201).json(reaction);
     }
@@ -98,7 +99,7 @@ const deleteReaction = async (req, res) => {
       { _id: req.params.thoughtId },
       { $pull: { reactions: req.params.reactionId } },
       { new: true, runValidators: true }
-    );
+    ).select('-__v');
 
     res.status(200).json(reaction);
   } catch (err) {
